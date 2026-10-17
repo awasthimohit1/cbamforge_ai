@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CBAMForge | AI-Powered EU CBAM Compliance Agent</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen">
+    <header class="border-b border-slate-800 bg-slate-900/50 backdrop-blur p-4">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <div class="bg-indigo-600 p-2 rounded-lg font-bold text-lg">CBAMForge</div>
+                <span class="text-xs bg-indigo-500/20 text-indigo-400 px-2.5 py-1 rounded-full border border-indigo-500/30">Google Cloud Run + Gemini</span>
+            </div>
+            <div class="text-sm text-slate-400">AI Builder Cup 2026 • Manufacturing Track</div>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto p-6 grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+        <!-- Input Form -->
+        <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-xl">
+            <h2 class="text-xl font-semibold mb-4 text-indigo-300">Shop-Floor Batch Audit Form</h2>
+            <form id="auditForm" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-medium text-slate-400 mb-1">Batch ID</label>
+                    <input type="text" id="batch_id" value="BATCH-ST-2026-091" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-sm focus:border-indigo-500 focus:outline-none" required>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-400 mb-1">Material Type</label>
+                        <select id="material_type" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-sm focus:border-indigo-500 focus:outline-none">
+                            <option>Steel (Unalloyed Hot-Rolled)</option>
+                            <option>Aluminium Bars & Rods</option>
+                            <option>Iron Structures</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-400 mb-1">Weight (Metric Tons)</label>
+                        <input type="number" id="total_weight_tons" value="145.5" step="0.1" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-sm focus:border-indigo-500 focus:outline-none" required>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-slate-400 mb-1">Furnace Energy Consumption (kWh/ton)</label>
+                    <input type="number" id="furnace_kwh_per_ton" value="580" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-sm focus:border-indigo-500 focus:outline-none" required>
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-slate-400 mb-1">Supplier Mill Test Certificate (MTC) & Scrap Ratio Notes</label>
+                    <textarea id="supplier_certificate_text" rows="3" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-sm focus:border-indigo-500 focus:outline-none">Scrap metal input ratio: 35%. Direct electric arc furnace melting with low-emission scrubber active. Conforms to EN 10204 3.1 standards.</textarea>
+                </div>
+                <button type="submit" id="submitBtn" class="w-full bg-indigo-600 hover:bg-indigo-500 transition font-medium py-2.5 rounded-lg text-sm shadow-lg shadow-indigo-600/20">
+                    Run AI CBAM Compliance Audit
+                </button>
+            </form>
+        </div>
+
+        <!-- Output Results -->
+        <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-xl flex flex-col justify-between">
+            <div>
+                <h2 class="text-xl font-semibold mb-4 text-indigo-300">Gemini Audit & EU XML Dossier</h2>
+                <div id="loading" class="hidden text-center py-12 text-slate-400 animate-pulse">
+                    Analyzing smart-meter telemetry and calculating embedded emissions...
+                </div>
+                <div id="results" class="hidden space-y-4">
+                    <div class="flex justify-between items-center bg-slate-950 p-3 rounded-lg border border-slate-800">
+                        <span class="text-xs text-slate-400">Status</span>
+                        <span id="resStatus" class="px-2.5 py-1 rounded text-xs font-semibold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Verified Compliant</span>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-400 mb-1">AI Reasoning & CBAM Calculation Breakdown</label>
+                        <div id="resReport" class="bg-slate-950 p-4 rounded-lg border border-slate-800 text-xs text-slate-300 font-mono whitespace-pre-wrap max-h-72 overflow-y-auto"></div>
+                    </div>
+                </div>
+                <div id="placeholder" class="text-center py-16 text-slate-500 text-sm">
+                    Submit batch telemetry to generate the official EU CBAM compliance certificate.
+                </div>
+            </div>
+            <div class="border-t border-slate-800 pt-4 mt-4 text-xs text-slate-500 flex justify-between">
+                <span>Backed by Cloud Firestore</span>
+                <span>Zero Cost / Free Tier Active</span>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const API_URL = "https://builder-cup-api-loxbvxjoya-uc.a.run.app";
+
+        document.getElementById('auditForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            document.getElementById('placeholder').classList.add('hidden');
+            document.getElementById('results').classList.add('hidden');
+            document.getElementById('loading').classList.remove('hidden');
+            document.getElementById('submitBtn').disabled = true;
+
+            const payload = {
+                batch_id: document.getElementById('batch_id').value,
+                material_type: document.getElementById('material_type').value,
+                total_weight_tons: parseFloat(document.getElementById('total_weight_tons').value),
+                furnace_kwh_per_ton: parseFloat(document.getElementById('furnace_kwh_per_ton').value),
+                supplier_certificate_text: document.getElementById('supplier_certificate_text').value
+            };
+
+            try {
+                const response = await fetch(`${API_URL}/api/cbam/audit`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await response.json();
+                
+                document.getElementById('resReport').innerText = data.ai_audit_report;
+                document.getElementById('resStatus').innerText = data.status;
+                document.getElementById('results').classList.remove('hidden');
+            } catch (err) {
+                alert("Error connecting to Cloud Run backend: " + err.message);
+            } finally {
+                document.getElementById('loading').classList.add('hidden');
+                document.getElementById('submitBtn').disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>
