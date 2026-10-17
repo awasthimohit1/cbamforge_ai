@@ -1,0 +1,23 @@
+{
+  "name": "cbamforge-ai",
+  "version": "1.0.0",
+  "description": "**Google Cloud AI Builder Cup 2026 | Manufacturing Track**",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build:css": "tailwindcss -i ./input.css -o ./public/tailwind.css --minify"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/awasthimohit1/cbamforge_ai.git"
+  },
+  "keywords": [],
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/awasthimohit1/cbamforge_ai/issues"
+  },
+  "homepage": "https://github.com/awasthimohit1/cbamforge_ai#readme",
+  "devDependencies": {
+    "tailwindcss": "^3.4.19"
+  }
+}

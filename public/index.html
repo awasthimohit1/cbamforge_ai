@@ -1,123 +1,292 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CBAMForge | AI-Powered EU CBAM Compliance Agent</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CarbonShield AI – CBAM Compliance Audit</title>
+<link rel="stylesheet" href="/tailwind.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#0a0f1a;--panel:#111827;--inset:#0d1321;--line:#1e293b;--muted:#64748b;--text:#e2e8f0;--accent:#818cf8;--ok:#34d399;--warn:#fbbf24;--bad:#f87171}
+  *{box-sizing:border-box}
+  body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;overflow:hidden;display:flex;flex-direction:column}
+  .inset{background:var(--inset);border:1px solid var(--line);border-radius:12px}
+  .lbl{display:block;color:#cbd5e1;font-size:11px;font-weight:600;margin-bottom:8px;text-transform:uppercase;letter-spacing:.05em}
+  .lbl i{color:var(--muted);margin-right:6px}
+  .field{background:#0f172a;border:1px solid #334155;color:var(--text);border-radius:8px;padding:10px 14px;font-size:14px;width:100%;outline:none;transition:border-color .2s,box-shadow .2s;font-family:inherit}
+  .field:focus{border-color:#6366f1;box-shadow:0 0 0 3px rgba(99,102,241,.2)}
+  .field.err{border-color:var(--bad)}
+  select.field{appearance:none;cursor:pointer;padding-right:36px}
+  .unit{position:absolute;right:12px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:12px;pointer-events:none}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border-radius:8px;font-weight:600;font-size:12px;padding:6px 12px;background:var(--line);color:#cbd5e1;border:0;cursor:pointer;transition:filter .15s}
+  .btn:hover:not(:disabled){filter:brightness(1.25)}
+  .btn:disabled{opacity:.45;cursor:not-allowed}
+  .btn:focus-visible,.cta:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  .cta{width:100%;padding:14px;border-radius:12px;background:linear-gradient(90deg,#4f46e5,#7c3aed);color:#fff;font-weight:700;font-size:14px;border:0;cursor:pointer;display:flex;gap:10px;align-items:center;justify-content:center}
+  .cta:disabled{opacity:.7;cursor:wait}
+  pre.code{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:16px;font:12px/1.7 ui-monospace,Menlo,monospace;color:#94a3b8;overflow:auto;max-height:340px;white-space:pre-wrap;word-break:break-word}
+  .bar{height:10px;background:var(--line);border-radius:9999px;overflow:hidden}
+  .bar>div{height:100%;width:0;border-radius:9999px;transition:width .8s ease}
+  .skeleton{animation:pulse 1.2s ease-in-out infinite}
+  @keyframes pulse{50%{opacity:.4}}
+  @media(prefers-reduced-motion:reduce){.skeleton{animation:none}.bar>div{transition:none}}
+  @media print{header,#form-panel,.no-print{display:none!important}body{background:#fff;color:#000}.panel,.inset{border-color:#ccc;background:#fff}}
+  ::-webkit-scrollbar{width:6px;height:6px}::-webkit-scrollbar-thumb{background:#475569;border-radius:3px}
+</style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen">
-    <header class="border-b border-slate-800 bg-slate-900/50 backdrop-blur p-4">
-        <div class="max-w-6xl mx-auto flex justify-between items-center">
-            <div class="flex items-center space-x-3">
-                <div class="bg-indigo-600 p-2 rounded-lg font-bold text-lg">CBAMForge</div>
-                <span class="text-xs bg-indigo-500/20 text-indigo-400 px-2.5 py-1 rounded-full border border-indigo-500/30">Google Cloud Run + Gemini</span>
-            </div>
-            <div class="text-sm text-slate-400">AI Builder Cup 2026 • Manufacturing Track</div>
+<body>
+
+<header class="flex flex-wrap items-center justify-between gap-3 px-4 sm:px-8 py-3 border-b" style="border-color:var(--line);background:var(--inset)">
+  <div class="flex items-center gap-3">
+    <div class="w-9 h-9 rounded-lg flex items-center justify-center" style="background:linear-gradient(135deg,#6366f1,#7c3aed)"><i class="fa-solid fa-shield-halved text-white text-sm"></i></div>
+    <span class="text-white font-bold text-lg tracking-tight">CarbonShield<span style="color:var(--accent)">AI</span></span>
+  </div>
+  <nav class="hidden md:flex items-center gap-8 text-sm font-medium" style="color:#94a3b8" aria-label="Main">
+    <a href="#" style="color:var(--accent)" class="font-semibold"><i class="fa-solid fa-gauge-high mr-2 text-xs"></i>Dashboard</a>
+    <a href="#"><i class="fa-solid fa-clock-rotate-left mr-2 text-xs"></i>Audit History</a>
+    <a href="#"><i class="fa-solid fa-file-export mr-2 text-xs"></i>XML Exports</a>
+    <a href="#"><i class="fa-solid fa-gear mr-2 text-xs"></i>Settings</a>
+  </nav>
+  <div class="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold" style="background:linear-gradient(135deg,#6366f1,#7c3aed)">MA</div>
+</header>
+
+<main class="max-w-[1500px] mx-auto px-4 sm:px-8 py-6">
+  <div class="mb-5">
+    <div class="flex flex-wrap items-center gap-3 mb-1">
+      <h1 class="text-white text-2xl font-bold tracking-tight">CBAM Compliance Audit</h1>
+      <span class="px-2.5 py-1 rounded-full text-xs font-semibold" style="background:rgba(99,102,241,.15);color:var(--accent);border:1px solid rgba(99,102,241,.2)">EU Reg. 2023/956</span>
+    </div>
+    <p class="text-sm" style="color:var(--muted)">Submit batch production data for AI-powered carbon emission analysis and EU CBAM XML draft generation.</p>
+  </div>
+
+  <div class="grid gap-6 lg:grid-cols-[minmax(340px,480px)_1fr] items-start">
+
+    <!-- FORM -->
+    <section id="form-panel" class="panel lg:sticky lg:top-6" aria-labelledby="form-title">
+      <div class="p-5 border-b flex items-center gap-3" style="border-color:var(--line)">
+        <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.2)"><i class="fa-solid fa-clipboard-check" style="color:var(--accent)"></i></div>
+        <div><h2 id="form-title" class="text-white font-bold text-base">Shop-Floor Batch Audit</h2><p class="text-xs" style="color:var(--muted)">Enter production batch parameters</p></div>
+      </div>
+
+      <form id="audit-form" class="p-5 flex flex-col gap-5" novalidate>
+        <div>
+          <label class="lbl" for="batch_id"><i class="fa-solid fa-barcode"></i>Batch ID</label>
+          <input class="field" id="batch_id" required value="STL-2026-0847-HRC" autocomplete="off">
         </div>
-    </header>
-
-    <main class="max-w-6xl mx-auto p-6 grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-        <!-- Input Form -->
-        <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-xl">
-            <h2 class="text-xl font-semibold mb-4 text-indigo-300">Shop-Floor Batch Audit Form</h2>
-            <form id="auditForm" class="space-y-4">
-                <div>
-                    <label class="block text-xs font-medium text-slate-400 mb-1">Batch ID</label>
-                    <input type="text" id="batch_id" value="BATCH-ST-2026-091" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-sm focus:border-indigo-500 focus:outline-none" required>
-                </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs font-medium text-slate-400 mb-1">Material Type</label>
-                        <select id="material_type" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-sm focus:border-indigo-500 focus:outline-none">
-                            <option>Steel (Unalloyed Hot-Rolled)</option>
-                            <option>Aluminium Bars & Rods</option>
-                            <option>Iron Structures</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-medium text-slate-400 mb-1">Weight (Metric Tons)</label>
-                        <input type="number" id="total_weight_tons" value="145.5" step="0.1" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-sm focus:border-indigo-500 focus:outline-none" required>
-                    </div>
-                </div>
-                <div>
-                    <label class="block text-xs font-medium text-slate-400 mb-1">Furnace Energy Consumption (kWh/ton)</label>
-                    <input type="number" id="furnace_kwh_per_ton" value="580" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-sm focus:border-indigo-500 focus:outline-none" required>
-                </div>
-                <div>
-                    <label class="block text-xs font-medium text-slate-400 mb-1">Supplier Mill Test Certificate (MTC) & Scrap Ratio Notes</label>
-                    <textarea id="supplier_certificate_text" rows="3" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-sm focus:border-indigo-500 focus:outline-none">Scrap metal input ratio: 35%. Direct electric arc furnace melting with low-emission scrubber active. Conforms to EN 10204 3.1 standards.</textarea>
-                </div>
-                <button type="submit" id="submitBtn" class="w-full bg-indigo-600 hover:bg-indigo-500 transition font-medium py-2.5 rounded-lg text-sm shadow-lg shadow-indigo-600/20">
-                    Run AI CBAM Compliance Audit
-                </button>
-            </form>
+        <div>
+          <label class="lbl" for="material"><i class="fa-solid fa-cubes"></i>Material Type</label>
+          <div class="relative">
+            <select class="field" id="material">
+              <option value="Steel">Hot-Rolled Coil (CN 7208) – Steel</option>
+              <option value="Steel">Cold-Rolled Coil (CN 7209) – Steel</option>
+              <option value="Aluminium">Aluminium Ingot (CN 7601)</option>
+              <option value="Cement">Grey Portland Cement (CN 2523)</option>
+              <option value="Fertiliser">NPK Fertiliser (CN 3105)</option>
+            </select>
+            <i class="fa-solid fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-[11px] pointer-events-none" style="color:var(--muted)"></i>
+          </div>
+        </div>
+        <div class="grid sm:grid-cols-2 gap-4">
+          <div>
+            <label class="lbl" for="weight"><i class="fa-solid fa-weight-hanging"></i>Total Weight</label>
+            <div class="relative"><input class="field" id="weight" inputmode="decimal" required value="2450" style="padding-right:56px"><span class="unit">tons</span></div>
+          </div>
+          <div>
+            <label class="lbl" for="kwh"><i class="fa-solid fa-bolt"></i>Furnace Energy</label>
+            <div class="relative"><input class="field" id="kwh" inputmode="decimal" required value="580" style="padding-right:76px"><span class="unit">kWh/ton</span></div>
+          </div>
+        </div>
+        <div>
+          <label class="lbl" for="grid"><i class="fa-solid fa-plug-circle-bolt"></i>Grid Emission Factor</label>
+          <div class="relative"><input class="field" id="grid" inputmode="decimal" value="0.82" style="padding-right:92px"><span class="unit">tCO₂/MWh</span></div>
+          <p class="text-xs mt-1.5" style="color:#475569"><i class="fa-solid fa-circle-info mr-1"></i>Override with a supplier-specific value if available.</p>
+        </div>
+        <div>
+          <label class="lbl" for="mtc"><i class="fa-solid fa-file-lines"></i>Supplier Mill Test Certificate (MTC) Notes</label>
+          <textarea class="field" id="mtc" rows="5" style="resize:vertical;min-height:110px">Supplier: ArcelorMittal Dunkirk. MTC Ref: AMD-2026-HRC-4471. DRI precursor used (70% scrap, 30% DRI). Verified under ISO 14404. Scope 1 &amp; 2 included. Third-party audit by Bureau Veritas, cert. valid through 2027-03.</textarea>
         </div>
 
-        <!-- Output Results -->
-        <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-xl flex flex-col justify-between">
-            <div>
-                <h2 class="text-xl font-semibold mb-4 text-indigo-300">Gemini Audit & EU XML Dossier</h2>
-                <div id="loading" class="hidden text-center py-12 text-slate-400 animate-pulse">
-                    Analyzing smart-meter telemetry and calculating embedded emissions...
-                </div>
-                <div id="results" class="hidden space-y-4">
-                    <div class="flex justify-between items-center bg-slate-950 p-3 rounded-lg border border-slate-800">
-                        <span class="text-xs text-slate-400">Status</span>
-                        <span id="resStatus" class="px-2.5 py-1 rounded text-xs font-semibold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Verified Compliant</span>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-medium text-slate-400 mb-1">AI Reasoning & CBAM Calculation Breakdown</label>
-                        <div id="resReport" class="bg-slate-950 p-4 rounded-lg border border-slate-800 text-xs text-slate-300 font-mono whitespace-pre-wrap max-h-72 overflow-y-auto"></div>
-                    </div>
-                </div>
-                <div id="placeholder" class="text-center py-16 text-slate-500 text-sm">
-                    Submit batch telemetry to generate the official EU CBAM compliance certificate.
-                </div>
-            </div>
-            <div class="border-t border-slate-800 pt-4 mt-4 text-xs text-slate-500 flex justify-between">
-                <span>Backed by Cloud Firestore</span>
-                <span>Zero Cost / Free Tier Active</span>
-            </div>
+        <div class="pt-1">
+          <button type="submit" id="run" class="cta"><i class="fa-solid fa-microchip"></i><span>Run AI CBAM Compliance Audit</span></button>
+          <p class="text-center text-xs mt-2.5" style="color:#475569"><i class="fa-solid fa-lock mr-1"></i>Powered by Gemini. Data encrypted at rest.</p>
         </div>
-    </main>
+      </form>
+    </section>
 
-    <script>
-        const API_URL = "https://builder-cup-api-loxbvxjoya-uc.a.run.app";
+    <!-- RESULTS -->
+    <section class="panel min-h-[520px]" aria-labelledby="res-title" aria-live="polite">
+      <div class="p-5 border-b flex flex-wrap items-center justify-between gap-3" style="border-color:var(--line)">
+        <div class="flex items-center gap-3 min-w-0">
+          <div class="w-10 h-10 shrink-0 rounded-xl flex items-center justify-center" style="background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.2)"><i class="fa-solid fa-file-shield" style="color:var(--ok)"></i></div>
+          <div class="min-w-0"><h2 id="res-title" class="text-white font-bold text-base">AI Audit &amp; EU XML Draft</h2><p id="res-meta" class="text-xs truncate" style="color:var(--muted)">No audit run yet</p></div>
+        </div>
+        <span id="badge" class="hidden px-3 py-1.5 rounded-full text-xs font-bold items-center gap-1.5"></span>
+      </div>
 
-        document.getElementById('auditForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            document.getElementById('placeholder').classList.add('hidden');
-            document.getElementById('results').classList.add('hidden');
-            document.getElementById('loading').classList.remove('hidden');
-            document.getElementById('submitBtn').disabled = true;
+      <div class="p-5 flex flex-col gap-5">
+        <div id="empty" class="inset p-10 text-center">
+          <i class="fa-solid fa-chart-column text-3xl mb-3" style="color:#334155"></i>
+          <p class="text-white font-semibold">Ready when you are</p>
+          <p class="text-sm mt-1" style="color:var(--muted)">Fill in the batch details and run the audit to see emissions, liability and the XML draft here.</p>
+        </div>
 
-            const payload = {
-                batch_id: document.getElementById('batch_id').value,
-                material_type: document.getElementById('material_type').value,
-                total_weight_tons: parseFloat(document.getElementById('total_weight_tons').value),
-                furnace_kwh_per_ton: parseFloat(document.getElementById('furnace_kwh_per_ton').value),
-                supplier_certificate_text: document.getElementById('supplier_certificate_text').value
-            };
+        <div id="results" class="hidden flex-col gap-5">
+          <div class="grid gap-4 sm:grid-cols-3">
+            <div class="inset p-4"><p class="lbl !mb-1">Total Embedded Carbon</p><p class="text-white text-2xl font-bold"><span id="m-total">—</span><span class="text-sm font-medium ml-1" style="color:#94a3b8">tCO₂e</span></p><p class="text-xs mt-1" style="color:var(--muted)"><span id="m-spec">—</span> tCO₂e / ton</p></div>
+            <div class="inset p-4"><p class="lbl !mb-1">Material</p><p id="m-mat" class="text-white text-2xl font-bold truncate">—</p><p class="text-xs mt-1" style="color:var(--muted)"><span id="m-wt">—</span> tons</p></div>
+            <div class="inset p-4"><p class="lbl !mb-1">Compliance Status</p><p id="m-status" class="text-white text-2xl font-bold">—</p><p class="text-xs mt-1" style="color:var(--muted)">Vs 2026 benchmark + 10%</p></div>
+          </div>
 
-            try {
-                const response = await fetch(`${API_URL}/api/cbam/audit`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                const data = await response.json();
-                
-                document.getElementById('resReport').innerText = data.ai_audit_report;
-                document.getElementById('resStatus').innerText = data.status;
-                document.getElementById('results').classList.remove('hidden');
-            } catch (err) {
-                alert("Error connecting to Cloud Run backend: " + err.message);
-            } finally {
-                document.getElementById('loading').classList.add('hidden');
-                document.getElementById('submitBtn').disabled = false;
-            }
-        });
-    </script>
+          <div id="breakdown" class="inset p-5 hidden">
+            <h3 class="text-white font-bold text-sm mb-4">Carbon Emissions Breakdown</h3>
+            <div class="flex flex-col gap-4" id="bars"></div>
+          </div>
+
+          <div class="inset p-5">
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+              <h3 class="text-white font-bold text-sm flex items-center gap-2"><i class="fa-solid fa-code text-xs" style="color:var(--accent)"></i><span id="out-title">Audit Output</span></h3>
+              <div class="flex gap-2 no-print">
+                <button class="btn" id="copy" disabled><i class="fa-solid fa-copy"></i>Copy</button>
+                <button class="btn" id="export" disabled><i class="fa-solid fa-download"></i>Export .xml</button>
+              </div>
+            </div>
+            <pre class="code" id="out" tabindex="0"></pre>
+          </div>
+
+          <div class="flex flex-wrap items-center justify-between gap-3 no-print">
+            <span class="text-xs" style="color:var(--muted)"><i class="fa-solid fa-robot mr-1.5" style="color:var(--accent)"></i>AI-generated draft. Review before filing.</span>
+            <div class="flex gap-2">
+              <button class="btn" onclick="window.print()"><i class="fa-solid fa-print"></i>Print</button>
+              <button class="btn" disabled title="Registry submission not connected"><i class="fa-solid fa-paper-plane"></i>Submit to EU Registry</button>
+            </div>
+          </div>
+        </div>
+
+        <div id="error" class="hidden inset p-4 text-sm" style="border-color:rgba(248,113,113,.4);color:var(--bad)" role="alert"></div>
+      </div>
+    </section>
+  </div>
+</main>
+
+<script>
+const API_URL = "https://cbamforge-ai-1066357578492.us-central1.run.app"; // same origin; Firebase Hosting rewrites /api/** to Cloud Run
+const $ = id => document.getElementById(id);
+const num = v => parseFloat(String(v).replace(/,/g, ""));
+let lastText = "", lastXml = "", lastBatch = "audit";
+
+function show(el, on, flex){ el.classList.toggle("hidden", !on); if(flex) el.style.display = on ? "flex" : ""; }
+function fmt(n, d=0){ return typeof n === "number" && isFinite(n) ? n.toLocaleString("en-US",{maximumFractionDigits:d}) : "—"; }
+
+function setBadge(text){
+  const bad = /review/i.test(text);
+  const c = bad ? "251,191,36" : "16,185,129";
+  const b = $("badge");
+  b.style.cssText = `display:inline-flex;background:rgba(${c},.15);color:${bad?"var(--warn)":"var(--ok)"};border:1px solid rgba(${c},.25)`;
+  b.innerHTML = `<i class="fa-solid ${bad?"fa-triangle-exclamation":"fa-circle-check"}" style="font-size:10px"></i> ${text}`;
+}
+
+function validate(){
+  let ok = true;
+  ["batch_id","weight","kwh"].forEach(id=>{
+    const el = $(id);
+    const bad = id==="batch_id" ? !el.value.trim() : !(num(el.value) > 0);
+    el.classList.toggle("err", bad);
+    if(bad) ok = false;
+  });
+  return ok;
+}
+
+function renderBars(m){
+  const parts = [
+    ["Direct Emissions", m.direct, "#6366f1"],
+    ["Indirect (Electricity)", m.indirect, "#0ea5e9"],
+    ["Precursor Emissions", m.precursor, "#f59e0b"],
+  ].filter(p => typeof p[1] === "number");
+  if(!parts.length){ show($("breakdown"), false); return; }
+  const total = parts.reduce((s,p)=>s+p[1],0) || 1;
+  $("bars").innerHTML = parts.map(([n,v,c])=>`
+    <div><div class="flex justify-between text-sm mb-1.5"><span class="flex items-center gap-2" style="color:#cbd5e1"><span class="w-2.5 h-2.5 rounded-full" style="background:${c}"></span>${n}</span><b class="text-white">${fmt(v)} tCO₂e</b></div>
+    <div class="bar"><div style="background:${c}" data-w="${(v/total*100).toFixed(1)}"></div></div></div>`).join("");
+  show($("breakdown"), true);
+  requestAnimationFrame(()=>document.querySelectorAll("#bars [data-w]").forEach(e=>e.style.width=e.dataset.w+"%"));
+}
+
+function render(r){
+  lastText = r.ai_audit_report || r.report_xml || "";
+  const fence = lastText.match(/```(?:xml)?\s*([\s\S]*?)```/i);
+  lastXml = r.report_xml || (fence ? fence[1].trim() : "");
+  lastBatch = r.batch_id || "audit";
+
+  const m = r.metrics || {}; // optional structured data from backend (see suggested patch)
+  const total = m.total_tco2e, w = r.weight_tons;
+  $("m-total").textContent = fmt(total);
+  $("m-spec").textContent = typeof total==="number" && w ? fmt(total/w,2) : "—";
+  $("m-mat").textContent = r.material || "—";
+  $("m-wt").textContent = fmt(w, 2);
+  $("m-status").textContent = r.status || "—";
+  renderBars(m);
+
+  $("out-title").textContent = lastXml ? "EU CBAM XML Draft" : "Audit Report";
+  $("out").textContent = lastXml || lastText;
+  $("copy").disabled = $("export").disabled = !lastXml && !lastText;
+  $("res-meta").textContent = `Batch ${r.batch_id} · ${new Date(r.timestamp||Date.now()).toLocaleString()}`;
+  setBadge(r.status || "Done");
+  show($("empty"), false); show($("error"), false); show($("results"), true, true);
+}
+
+$("audit-form").addEventListener("submit", async e => {
+  e.preventDefault();
+  if(!validate()) return;
+  const btn = $("run"), label = btn.querySelector("span"), icon = btn.querySelector("i");
+  btn.disabled = true; icon.className = "fa-solid fa-spinner fa-spin"; label.textContent = "Running audit…";
+  show($("error"), false);
+  if($("results").classList.contains("hidden")) show($("empty"), false);
+  $("res-meta").textContent = "Analysing batch…"; $("res-meta").classList.add("skeleton");
+
+  const grid = $("grid").value.trim();
+  const body = {
+    batch_id: $("batch_id").value.trim(),
+    material_type: $("material").value,
+    total_weight_tons: num($("weight").value),
+    furnace_kwh_per_ton: num($("kwh").value),
+    supplier_certificate_text: $("mtc").value.trim(),
+    grid_factor_tco2_per_mwh: grid ? num(grid) : 0.82
+  };
+
+  try {
+    const ctrl = new AbortController(), t = setTimeout(()=>ctrl.abort(), 90000);
+    const res = await fetch(`${API_URL}/api/cbam/audit`, {
+      method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(body), signal:ctrl.signal
+    });
+    clearTimeout(t);
+    const data = await res.json().catch(()=>({}));
+    if(!res.ok) throw new Error(data.detail || `Server returned ${res.status}`);
+    render(data);
+  } catch(err){
+    const msg = err.name === "AbortError" ? "The request timed out. Please try again." : err.message;
+    $("error").textContent = "Audit failed: " + msg;
+    show($("error"), true);
+    if($("results").classList.contains("hidden")) show($("empty"), true);
+    $("res-meta").textContent = "Audit failed";
+  } finally {
+    $("res-meta").classList.remove("skeleton");
+    btn.disabled = false; icon.className = "fa-solid fa-microchip"; label.textContent = "Run AI CBAM Compliance Audit";
+  }
+});
+
+$("copy").addEventListener("click", async () => {
+  try { await navigator.clipboard.writeText(lastXml || lastText); $("copy").innerHTML = '<i class="fa-solid fa-check"></i>Copied'; }
+  catch { $("copy").textContent = "Copy failed"; }
+  setTimeout(()=>$("copy").innerHTML = '<i class="fa-solid fa-copy"></i>Copy', 1500);
+});
+
+$("export").addEventListener("click", () => {
+  const blob = new Blob([lastXml || lastText], {type: lastXml ? "application/xml" : "text/plain"});
+  const a = Object.assign(document.createElement("a"), {href:URL.createObjectURL(blob), download:`${lastBatch}.${lastXml?"xml":"txt"}`});
+  a.click(); URL.revokeObjectURL(a.href);
+});
+</script>
 </body>
 </html>
