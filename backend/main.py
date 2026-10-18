@@ -22,7 +22,8 @@ ALLOWED_ORIGINS = [
 
 # !! PLACEHOLDER VALUES - replace with the EU default values / benchmarks
 # from the official CBAM implementing regulation before real use. !!
-DIRECT_FACTOR = {"Steel": 1.9, "Aluminium": 1.6, "Cement": 0.67, "Fertiliser": 2.0}      # tCO2e / t product
+DIRECT_FACTOR = {"Steel": 1.9, "Aluminium": 1.6, "Cement": 0.67, "Fertiliser": 2.0}      # tCO2e / t product (primary / conventional route)
+DIRECT_FACTOR_LOW = {"Steel": 0.4, "Aluminium": 0.5, "Cement": 0.67, "Fertiliser": 2.0}  # tCO2e / t product (scrap-based / low-carbon route)
 PRECURSOR_FACTOR = {"Steel": 1.1, "Aluminium": 0.0, "Cement": 0.0, "Fertiliser": 0.0}    # tCO2e / t precursor (e.g. DRI)
 BENCHMARK = {"Steel": 2.3, "Aluminium": 8.0, "Cement": 0.8, "Fertiliser": 2.4}           # tCO2e / t product
 PENALTY_MARGIN = 0.10
@@ -84,6 +85,7 @@ class CBAMRequest(BaseModel):
 class CertExtraction(BaseModel):
     """What Gemini reads out of the supplier certificate (no maths here)."""
     precursor_share_pct: float | None = Field(None, description="% of input that is a high-emission precursor such as DRI. null if not stated")
+    scrap_share_pct: float | None = Field(None, description="% of metallic input that is recycled scrap. null if not stated")
     verifier: str | None = None
     certificate_ref: str | None = None
     verification_standard: str | None = None
@@ -151,7 +153,9 @@ async def audit_cbam_batch(p: CBAMRequest):
 
     # 2) The maths is deterministic Python
     w = p.total_weight_tons
-    direct = w * DIRECT_FACTOR[material]
+    scrap = min(max((cert.scrap_share_pct or 0) / 100, 0), 1)
+    direct_factor = scrap * DIRECT_FACTOR_LOW[material] + (1 - scrap) * DIRECT_FACTOR[material]
+    direct = w * direct_factor
     indirect = (p.furnace_kwh_per_ton * w / 1000) * p.grid_factor_tco2_per_mwh
     share = (cert.precursor_share_pct or 0) / 100
     precursor = w * share * PRECURSOR_FACTOR[material]
